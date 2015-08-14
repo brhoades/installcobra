@@ -1,4 +1,6 @@
 from utils import spit
+import os
+import logging
 
 class Installer:
     """Installer interface. All other Installers should inherit from this.
@@ -26,10 +28,29 @@ class BaseInstaller(Installer):
         if version is None or len(version) < 3: 
             raise ValueError("Passed version is None or less than three characters")
         
+        self._loglevel = kwargs.get('loglevel', logging.DEBUG)
         self._setupLogging(name, version)
 
     def _setupLogging(self, name, version):
-        
+        """Sets up the logging txt file, whereever the OS stores it.
+        """
+        if os.name == "nt":
+            self._logpath = os.path.join("C:", "Windows", "System32", "UMRInst", "AppLogs")
+        elif os.name == "posix
+            self._logpath = os.path.join("var", "log", "umrinst", "applogs")
+        elif os.name == "mac":
+            raise NotImplementedError("This platform is not implemented.")
+        else:
+            raise NotImplementedError("This platform is not implemented.")
+
+        if os.path.exists(self._logpath):
+            os.mkdirs(self._logpath)
+
+        self._logfile = os.path.join(self._logpath, name+'.'+version)
+
+        # Open the file with logger
+        self.log = logging.getLogger(self._logfile)
+        self.log.setLevel(self._loglevel)
 
     def prerequisite(self):
         raise NotImplementedError("This method is not implemented.")
