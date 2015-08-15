@@ -1,4 +1,3 @@
-from utils import spit
 import os
 import logging
 
@@ -25,8 +24,8 @@ class BaseInstaller(Installer):
         if name is None or len(name) < 3:
             raise ValueError("Passed name is None or less than three characters")
         
-        if version is None or len(version) < 3: 
-            raise ValueError("Passed version is None or less than three characters")
+        if version is None or len(version) < 1: 
+            raise ValueError("Passed version is None or zero-length.")
         
         self._loglevel = kwargs.get('loglevel', logging.DEBUG)
         self._setupLogging(name, version)
@@ -36,7 +35,7 @@ class BaseInstaller(Installer):
         """
         if os.name == "nt":
             self._logpath = os.path.join("C:", "Windows", "System32", "UMRInst", "AppLogs")
-        elif os.name == "posix
+        elif os.name == "posix":
             self._logpath = os.path.join("var", "log", "umrinst", "applogs")
         elif os.name == "mac":
             raise NotImplementedError("This platform is not implemented.")
@@ -58,7 +57,7 @@ class BaseInstaller(Installer):
     def _copySourceFiles(self):
         """Source files are always in ./data/ from the script being ran.
         """
-        raise NotImplementedError("This method is not implemented.")
+        print("COPY SOURCE FILES")
 
     def preinstall(self):
         raise NotImplementedError("This method is not implemented.")
@@ -75,3 +74,6 @@ class BaseInstaller(Installer):
         self.preinstall()
         self.install()
         self.postinstall()
+
+class ScriptInstaller(BaseInstaller):
+    pass
