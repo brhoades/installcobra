@@ -21,6 +21,7 @@ class Installer:
 class BaseInstaller(Installer):
     """Basic installer boilerplate. No implementation should ever use this, this is used by other installers.
         
+        :param file: The full path and name of the script running. Just path __file__.
         :param name: The name of this script, used when printing. Forms the first part of the identifier.
         :param version: The version of this script, used for the logfiles and source directory. Forms the second portion of the identifier.
         
@@ -31,13 +32,14 @@ class BaseInstaller(Installer):
                 directly from data.
             * **data_dir** (*data*): The name of the source files directory.
     """
-    def __init__(self, name, version, **kwargs):
+    def __init__(self, scriptfile, name, version, **kwargs):
         if name is None or len(name) < 3:
             raise ValueError("Passed name is None or less than three characters")
         
         if version is None or len(version) < 1: 
             raise ValueError("Passed version is None or zero-length.")
 
+        self._scriptFile = os.path.abspath(scriptfile)
         self._name = name
         self._version = version
         self._identifier = kwargs.get('identifier', name+'.'+version)
@@ -73,10 +75,8 @@ class BaseInstaller(Installer):
     def prerequisite(self):
         raise NotImplementedError("This method is not implemented.")
 
-    def _copySourceFiles(self):
-        """Source files are always in ./data/ from the script being ran.
-        """
-        print("Hi")
+    def copySourceFiles(self):
+        self.__downloader.copySourceFiles();
 
     def preinstall(self):
         pass
@@ -89,7 +89,7 @@ class BaseInstaller(Installer):
 
     def run(self):
         self.prerequisite()
-        self._copySourceFiles()
+        self.copySourceFiles()
         self.preinstall()
         self.install()
         self.postinstall()

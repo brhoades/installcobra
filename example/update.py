@@ -17,4 +17,4 @@ class TestProgram(ScriptInstaller):
 
 
 if __name__ == '__main__':
-    TestProgram("testprogram", "1_0").run()
+    TestProgram(__file__, "testprogram", "1_0", copy_source_files=True).run()
