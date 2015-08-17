@@ -1,6 +1,6 @@
 import inspect
 import os
-from progressbar import ProgressBar, Percentage, AdaptiveETA, FileTransferSpeed, Bar
+from progressbar import ProgressBar, Percentage, AdaptiveETA, AdaptiveTransferSpeed, Bar
 import shutil
 
 class Downloader:
@@ -54,11 +54,11 @@ class Downloader:
 
         # Remove the source files directory if it already exists
         if os.path.exists(self._sourceFilesDir):
-            self._installer.log.warning("Removing old sourcefiles directory: \"{0}\"".format(self._sourceFilesDir))
+            self._installer.log.debug("Removing old sourcefiles directory: \"{0}\"".format(self._sourceFilesDir))
             shutil.rmtree(self._sourceFilesDir)
 
         widgets = ['Copying source files: ', Percentage(), ' ', Bar(marker='#'),
-                   ' ', AdaptiveETA(num_samples=50), ' ', FileTransferSpeed(unit='B')]
+                   ' ', AdaptiveETA(num_samples=100), ' ', AdaptiveTransferSpeed(num_samples=100)]
         # Create a progress bar instance. We'll use this to count files as we transfer them.
         with ProgressBar(widgets=widgets, maxval=filebytes) as pb:
             try:
