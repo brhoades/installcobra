@@ -1,5 +1,6 @@
 import os
 import logging
+from installcobra.downloader import Downloader
 
 class Installer:
     """Installer interface. All other Installers should inherit from this.
@@ -19,6 +20,16 @@ class Installer:
 
 class BaseInstaller(Installer):
     """Basic installer boilerplate. No implementation should ever use this, this is used by other installers.
+        
+        :param name: The name of this script, used when printing. Forms the first part of the identifier.
+        :param version: The version of this script, used for the logfiles and source directory. Forms the second portion of the identifier.
+        
+        :Kwargs:
+            * **identifier** (*name.version*): The identifier used for sourcefiles and the log file name.
+            * **log_level** (*logging.DEBUG*): The level at which to write to the log.
+            * **copy_source_files** (*False*): If source files are copied to a local folder and then ran. If not, the script uses the sourcefiles
+                directly from data.
+            * **data_dir** (*data*): The name of the source files directory.
     """
     def __init__(self, name, version, **kwargs):
         if name is None or len(name) < 3:
@@ -26,8 +37,16 @@ class BaseInstaller(Installer):
         
         if version is None or len(version) < 1: 
             raise ValueError("Passed version is None or zero-length.")
-        
-        self._loglevel = kwargs.get('loglevel', logging.DEBUG)
+
+        self._name = name
+        self._version = version
+        self._identifier = kwargs.get('identifier', name+'.'+version)
+        self._loglevel = kwargs.get('log_level', logging.DEBUG)
+
+        # Initialize our internal downloader instance
+        # This is something like private inheritance
+        self.__downloader = Downloader(self, kwargs)
+
         self._setupLogging(name, version)
 
     def _setupLogging(self, name, version):
@@ -45,7 +64,7 @@ class BaseInstaller(Installer):
         if os.path.exists(self._logpath):
             os.mkdirs(self._logpath)
 
-        self._logfile = os.path.join(self._logpath, name+'.'+version)
+        self._logfile = os.path.join(self._logpath, self._identifier)
 
         # Open the file with logger
         self.log = logging.getLogger(self._logfile)
@@ -57,7 +76,7 @@ class BaseInstaller(Installer):
     def _copySourceFiles(self):
         """Source files are always in ./data/ from the script being ran.
         """
-        print("COPY SOURCE FILES")
+        print("Hi")
 
     def preinstall(self):
         pass
