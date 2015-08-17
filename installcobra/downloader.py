@@ -1,6 +1,6 @@
 import inspect
 import os
-from progressbar import ProgressBar
+from progressbar import ProgressBar, Percentage, AdaptiveETA, FileTransferSpeed, Bar
 import shutil
 
 class Downloader:
@@ -45,20 +45,23 @@ class Downloader:
             self._installer.log.error("Data directory \"{0}\" doesn't exist".format(self._dataDir))
             return False
 
-        filecount = 0
-        # The number of files to copy
+        filebytes = 0
+        self._installer.log.debug("Determining size of data directory")
+        # Number of bytes to copy
         for path, dirs, files in os.walk(self._dataDir):
-            filecount += len(files)
+            for f in files:
+                filebytes += os.path.getsize(os.path.join(path, f))
 
         # Remove the source files directory if it already exists
         if os.path.exists(self._sourceFilesDir):
             self._installer.log.warning("Removing old sourcefiles directory: \"{0}\"".format(self._sourceFilesDir))
             shutil.rmtree(self._sourceFilesDir)
 
-        #print("Copying source files")
+        print("\nCopying source files")
+        widgets = ['Test: ', Percentage(), ' ', Bar(marker='#'),
+                   ' ', AdaptiveETA(num_samples=50), ' ', FileTransferSpeed(unit='B')]
         # Create a progress bar instance. We'll use this to count files as we transfer them.
-        #FIXME: Weight by file size so the percent is accurate.
-        with ProgressBar(maxval=filecount) as pb:
+        with ProgressBar(widgets=widgets, maxval=filebytes) as pb:
             try:
                 os.makedirs(self._sourceFilesDir)
             except:
@@ -78,4 +81,4 @@ class Downloader:
                      destFile = os.path.join(path.replace(self._dataDir, self._sourceFilesDir), sfile)
                      if not shutil.copy(srcFile, destFile):
                          self._installer.log.error("Error copying the file:\n  From: \"{0}\"\n  To:\"{1}\"".format(srcFile, destFile))
-                     pb += 1
+                     pb += os.path.getsize(destFile)
