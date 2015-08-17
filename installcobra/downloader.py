@@ -57,8 +57,7 @@ class Downloader:
             self._installer.log.warning("Removing old sourcefiles directory: \"{0}\"".format(self._sourceFilesDir))
             shutil.rmtree(self._sourceFilesDir)
 
-        print("\nCopying source files")
-        widgets = ['Test: ', Percentage(), ' ', Bar(marker='#'),
+        widgets = ['Copying source files: ', Percentage(), ' ', Bar(marker='#'),
                    ' ', AdaptiveETA(num_samples=50), ' ', FileTransferSpeed(unit='B')]
         # Create a progress bar instance. We'll use this to count files as we transfer them.
         with ProgressBar(widgets=widgets, maxval=filebytes) as pb:
