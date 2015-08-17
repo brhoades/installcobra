@@ -60,13 +60,13 @@ class BaseInstaller(Installer):
         print("COPY SOURCE FILES")
 
     def preinstall(self):
-        raise NotImplementedError("This method is not implemented.")
+        pass
 
     def install(self):
-        raise NotImplementedError("This method is not implemented.")
+        pass
 
     def postinstall(self):
-        raise NotImplementedError("This method is not implemented.")
+        pass
 
     def run(self):
         self.prerequisite()
