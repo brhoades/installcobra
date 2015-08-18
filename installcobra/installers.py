@@ -1,6 +1,8 @@
 import os
 import logging
 from installcobra.downloader import Downloader
+from installcobra.phase import Phase
+from itertools import starmap
 
 class Installer:
     """Installer interface. All other Installers should inherit from this.
@@ -71,28 +73,42 @@ class BaseInstaller(Installer):
         # Open the file with logger
         self.log = logging.getLogger(self._logfile)
         self.log.setLevel(self._loglevel)
-
+    
     def prerequisite(self):
-        raise NotImplementedError("This method is not implemented.")
+        return None
 
     def copySourceFiles(self):
-        self.__downloader.copySourceFiles();
+        return self.__downloader.copySourceFiles();
 
     def preinstall(self):
-        pass
+        return None
 
     def install(self):
-        pass
+        return None
 
     def postinstall(self):
-        pass
+        return None
 
     def run(self):
-        self.prerequisite()
-        self.copySourceFiles()
-        self.preinstall()
-        self.install()
-        self.postinstall()
+        phases = starmap(Phase,
+                      [[self.prerequisite, "Prerequisite"],
+                      [self.copySourceFiles, "Copy Source Files"],
+                      [self.preinstall, "Preinstall"],
+                      [self.install, "Install"],
+                      [self.postinstall, "Postinstall"]])
+
+        for p in phases:
+            if p.hides(self, BaseInstaller):
+                self.log.info('\n')
+                self.log.info('='*40)
+                self.log.info("Beginning {0} Phase".format(p.name()))
+                self.log.info('='*40)
+                self.log.info('\n')
+                p.method()()
+            else:
+                self.log.debug("Skipping {0} Phase".format(p.name()))
+
+        
 
 class ScriptInstaller(BaseInstaller):
     pass
